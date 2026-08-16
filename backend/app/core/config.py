@@ -12,7 +12,9 @@ class Settings(BaseSettings):
 
     app_name: str = "RAG Document Assistant"
     environment: str = "development"
-    cors_origins: str = "http://localhost:5173"
+    cors_origins: str = (
+        "http://localhost:5173,https://ai-powered-rag-doc-assistant.vercel.app"
+    )
 
     supabase_url: str = ""
     supabase_anon_key: str = ""
@@ -50,9 +52,16 @@ class Settings(BaseSettings):
 
     @property
     def cors_origin_list(self) -> list[str]:
-        return [
+        origins = [
             origin.strip() for origin in self.cors_origins.split(",") if origin.strip()
         ]
+        for extra in (
+            "http://localhost:5173",
+            "https://ai-powered-rag-doc-assistant.vercel.app",
+        ):
+            if extra not in origins:
+                origins.append(extra)
+        return origins
 
     @property
     def chroma_persist_path(self) -> str:
