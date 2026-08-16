@@ -20,10 +20,16 @@ function formatAuthError(message: string): string {
   if (lower.includes("user already registered")) {
     return "An account with this email already exists. Sign in instead.";
   }
-  if (lower.includes("email not confirmed")) {
-    return "Confirm your email, or turn off Confirm email in Supabase Auth.";
-  }
   return message;
+}
+
+function isUnconfirmedError(message: string): boolean {
+  const lower = message.toLowerCase();
+  return (
+    lower.includes("email not confirmed") ||
+    lower.includes("email_not_confirmed") ||
+    lower.includes("confirm your email")
+  );
 }
 
 export function AuthPanel({ onSignedIn }: AuthPanelProps) {
@@ -31,6 +37,8 @@ export function AuthPanel({ onSignedIn }: AuthPanelProps) {
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [needsConfirmation, setNeedsConfirmation] = useState(false);
   const [busy, setBusy] = useState(false);
 
   async function submit() {
@@ -39,6 +47,9 @@ export function AuthPanel({ onSignedIn }: AuthPanelProps) {
     }
     setBusy(true);
     setError("");
+    if (mode === "signup") {
+      setSuccess("");
+    }
     const action =
       mode === "signin"
         ? supabase.auth.signInWithPassword({ email, password })
@@ -46,13 +57,21 @@ export function AuthPanel({ onSignedIn }: AuthPanelProps) {
     const { data, error: authError } = await action;
     setBusy(false);
     if (authError) {
+      if (mode === "signin" && isUnconfirmedError(authError.message)) {
+        setNeedsConfirmation(true);
+        setError("");
+        return;
+      }
+      if (mode === "signin" && needsConfirmation) {
+        setError("");
+        return;
+      }
       setError(formatAuthError(authError.message));
       return;
     }
     if (mode === "signup" && !data.session) {
-      setError(
-        "Account created. Disable Confirm email in Supabase Auth, then sign in.",
-      );
+      setNeedsConfirmation(true);
+      setSuccess("Account created.");
       setMode("signin");
       return;
     }
@@ -100,6 +119,12 @@ export function AuthPanel({ onSignedIn }: AuthPanelProps) {
             Include uppercase, lowercase, a number, and a symbol.
           </p>
         )}
+        {success && <p className="mt-3 text-sm text-emerald-400">{success}</p>}
+        {mode === "signin" && needsConfirmation && (
+          <p className="mt-3 text-sm text-cyan-300">
+            Confirm your email, then sign in. Check your inbox for the link.
+          </p>
+        )}
         {error && <p className="mt-3 text-sm text-rose-400">{error}</p>}
         <button
           type="submit"
@@ -111,7 +136,13 @@ export function AuthPanel({ onSignedIn }: AuthPanelProps) {
         <button
           type="button"
           className="mt-3 w-full text-sm text-cyan-400"
-          onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+          onClick={() => {
+            setMode(mode === "signin" ? "signup" : "signin");
+            setError("");
+            if (mode === "signin") {
+              setSuccess("");
+            }
+          }}
         >
           {mode === "signin"
             ? "Need an account? Sign up"
