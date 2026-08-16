@@ -49,16 +49,16 @@ export function ChatWindow({
       >
         {!canChat && messages.length === 0 && (
           <div className="flex h-full items-center justify-center">
-            <div className="max-w-md rounded-2xl border border-cyan-400/40 bg-slate-900 px-6 py-8 text-center shadow-lg shadow-cyan-950/40">
-              <p className="text-xs font-semibold uppercase tracking-wide text-cyan-300">
+            <div className="glass-panel glass-panel-hover flex w-full max-w-md flex-col items-center gap-4 rounded-xl p-10 text-center shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+              <p className="font-label text-xs uppercase tracking-wider text-primary-fixed-dim">
                 Select a PDF first
               </p>
-              <h2 className="mt-2 text-lg font-semibold text-white">
+              <h2 className="font-display text-2xl font-bold tracking-tight text-primary-fixed-dim">
                 {hasDocuments
                   ? "Choose a document to start chatting"
                   : "Upload a PDF, then select it"}
               </h2>
-              <p className="mt-3 text-sm leading-6 text-slate-300">
+              <p className="max-w-xs text-sm leading-6 text-on-surface-variant">
                 {hasDocuments
                   ? "Click one file in the Documents list on the left. Chat only answers questions about the PDF you select."
                   : "Drop a PDF on the left, then click that file so the assistant knows which document to use."}
@@ -67,15 +67,17 @@ export function ChatWindow({
           </div>
         )}
         {!canChat && messages.length > 0 && (
-          <div className="rounded-2xl border border-cyan-400/40 bg-slate-900 px-4 py-3 text-sm text-slate-200">
+          <div className="glass-panel rounded-xl px-4 py-3 text-sm text-on-surface">
             Select a PDF on the left to continue this chat.
           </div>
         )}
         {canChat && messages.length === 0 && (
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3">
-            <p className="text-xs uppercase tracking-wide text-cyan-300">Chatting with</p>
-            <p className="mt-1 truncate text-sm font-medium text-white">{selectedFilename}</p>
-            <p className="mt-2 text-sm text-slate-400">Ask a question about this PDF.</p>
+          <div className="glass-panel rounded-xl px-4 py-3">
+            <p className="font-label text-xs uppercase tracking-wider text-primary-fixed-dim">
+              Chatting with
+            </p>
+            <p className="mt-1 truncate text-sm font-medium text-on-surface">{selectedFilename}</p>
+            <p className="mt-2 text-sm text-on-surface-variant">Ask a question about this PDF.</p>
           </div>
         )}
         {messages.length > 0 && (
@@ -83,14 +85,16 @@ export function ChatWindow({
             {messages.map((message) => (
               <article
                 key={message.id}
-                className={`rounded-2xl p-4 ${
+                className={
                   message.role === "user"
-                    ? "ml-8 bg-cyan-950/70 text-cyan-50"
-                    : "mr-8 bg-slate-900 text-slate-100"
-                }`}
+                    ? "ml-8 rounded-xl border border-outline-variant bg-surface-container-lowest p-4 text-on-surface"
+                    : "mr-8 border-l border-primary-container/50 py-1 pl-4 text-on-surface"
+                }
               >
-                <p className="text-xs uppercase tracking-wide text-slate-400">{message.role}</p>
-                <div className="prose prose-invert mt-2 max-w-none text-sm">
+                <p className="font-label text-[10px] uppercase tracking-widest text-outline">
+                  {message.role}
+                </p>
+                <div className="prose-chat mt-2 max-w-none text-[15px] leading-[22px]">
                   <Markdown>{message.content}</Markdown>
                 </div>
                 {message.role === "assistant" &&
@@ -100,26 +104,32 @@ export function ChatWindow({
                         <button
                           type="button"
                           key={`${source.document_id}-${source.page_number}`}
-                          className="rounded-lg border border-cyan-500/40 bg-slate-950 px-2.5 py-1.5 text-left hover:border-cyan-300"
+                          className="rounded-lg border border-outline-variant bg-surface-container-lowest px-2.5 py-1.5 text-left font-label hover:border-primary-container"
                           onClick={() => setPreview(source)}
                         >
-                          <span className="text-xs font-semibold text-cyan-300">
+                          <span className="text-xs font-medium text-primary-fixed-dim">
                             Page {source.page_number}
                           </span>
-                          <span className="ml-2 text-xs text-slate-300">{source.filename}</span>
+                          <span className="ml-2 text-xs text-on-surface-variant">
+                            {source.filename}
+                          </span>
                         </button>
                       ))}
                     </div>
                   )}
               </article>
             ))}
-            {loading && <p className="text-sm text-cyan-400">Thinking...</p>}
+            {loading && (
+              <p className="font-label text-sm tracking-wide text-primary-fixed-dim">
+                Thinking...
+              </p>
+            )}
           </div>
         )}
       </div>
-        {error && <p className="mt-3 shrink-0 text-sm text-rose-400">{error}</p>}
+        {error && <p className="mt-3 shrink-0 text-sm text-error">{error}</p>}
       <form
-        className="mt-4 flex shrink-0 gap-2"
+        className="glass-panel mt-4 flex shrink-0 items-center gap-3 rounded-xl p-2 pl-4 focus-within:ring-1 focus-within:ring-primary-container"
         onSubmit={(event) => {
           event.preventDefault();
           const text = draft.trim();
@@ -134,7 +144,7 @@ export function ChatWindow({
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           disabled={!canChat || loading}
-          className="flex-1 rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none focus:border-cyan-500 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex-1 border-none bg-transparent px-1 py-3 text-[15px] leading-[22px] text-on-surface outline-none placeholder:text-outline disabled:cursor-not-allowed disabled:opacity-50"
           placeholder={
             canChat
               ? `Ask about ${selectedFilename}`
@@ -145,7 +155,7 @@ export function ChatWindow({
         <button
           type="submit"
           disabled={loading || !canChat}
-          className="rounded-xl bg-cyan-600 px-4 py-3 font-medium text-white disabled:opacity-50"
+          className="rounded-lg bg-primary-container px-4 py-3 font-semibold text-on-primary-container shadow-[0_0_10px_rgba(0,229,255,0.15)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           Send
         </button>

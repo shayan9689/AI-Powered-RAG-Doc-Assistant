@@ -24,7 +24,7 @@ export function ConversationList({
     <div>
       <button
         type="button"
-        className="mb-3 w-full rounded-lg bg-cyan-600 px-3 py-2 text-sm font-medium text-white hover:bg-cyan-500"
+        className="btn-primary mb-3 w-full rounded-lg px-3 py-2 text-sm font-semibold hover:opacity-90"
         onClick={onNew}
       >
         New chat
@@ -34,10 +34,10 @@ export function ConversationList({
           <li key={item.id}>
             <button
               type="button"
-              className={`w-full rounded-xl border px-3 py-2 text-left text-sm ${
+              className={`glass-panel w-full rounded-xl px-3 py-2 text-left text-sm ${
                 selectedId === item.id
-                  ? "border-cyan-500 bg-slate-800 text-white"
-                  : "border-slate-800 bg-slate-950 text-slate-200"
+                  ? "bg-surface-container-highest text-on-surface"
+                  : "text-on-surface-variant"
               }`}
               onClick={() => onSelect(item.id)}
             >
@@ -45,7 +45,7 @@ export function ConversationList({
             </button>
             <button
               type="button"
-              className="mt-1 text-xs text-rose-400"
+              className="mt-1 text-xs text-error"
               onClick={() => setPending(item)}
             >
               Delete

@@ -69,7 +69,7 @@ export function PagePreviewModal({ citation, onClose }: PagePreviewModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-surface-container-lowest/85 p-4 backdrop-blur-sm"
       role="presentation"
       onClick={onClose}
     >
@@ -77,46 +77,48 @@ export function PagePreviewModal({ citation, onClose }: PagePreviewModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="page-preview-title"
-        className="flex max-h-[90vh] w-full max-w-3xl flex-col rounded-2xl border border-cyan-400/40 bg-slate-900 shadow-2xl shadow-cyan-950/40"
+        className="glass-panel flex max-h-[90vh] w-full max-w-3xl flex-col rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-slate-800 px-5 py-4">
+        <div className="flex items-start justify-between gap-4 border-b border-outline-variant px-5 py-4">
           <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-wide text-cyan-300">
+            <p className="font-label text-xs font-medium uppercase tracking-wider text-primary-fixed-dim">
               Page {citation.page_number}
             </p>
             <h3
               id="page-preview-title"
-              className="mt-1 truncate text-base font-semibold text-white"
+              className="mt-1 truncate font-display text-base font-semibold text-on-surface"
             >
               {citation.filename}
             </h3>
           </div>
           <button
             type="button"
-            className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-200 hover:border-cyan-400"
+            className="rounded-lg border border-outline-variant px-3 py-1.5 text-sm text-on-surface hover:border-primary-container"
             onClick={onClose}
           >
             Close
           </button>
         </div>
-        <div className="min-h-0 flex-1 overflow-auto bg-slate-950 p-4">
+        <div className="min-h-0 flex-1 overflow-auto bg-surface-container-lowest p-4">
           {loading && (
-            <p className="py-16 text-center text-sm text-cyan-300">Loading page...</p>
+            <p className="py-16 text-center font-label text-sm text-primary-fixed-dim">
+              Loading page...
+            </p>
           )}
           {error && (
-            <p className="py-16 text-center text-sm text-rose-400">{error}</p>
+            <p className="py-16 text-center text-sm text-error">{error}</p>
           )}
           {imageUrl && !loading && (
             <img
               src={imageUrl}
               alt={`${citation.filename} page ${citation.page_number}`}
-              className="mx-auto max-w-full rounded-lg border border-slate-800"
+              className="mx-auto max-w-full rounded-lg border border-outline-variant"
             />
           )}
         </div>
         {citation.snippet ? (
-          <p className="border-t border-slate-800 px-5 py-3 text-sm leading-6 text-slate-300">
+          <p className="border-t border-outline-variant px-5 py-3 text-sm leading-6 text-on-surface-variant">
             {citation.snippet}
           </p>
         ) : null}

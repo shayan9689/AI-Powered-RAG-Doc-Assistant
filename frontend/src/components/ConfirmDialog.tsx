@@ -35,7 +35,7 @@ export function ConfirmDialog({
   }
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-surface-container-lowest/80 p-4 backdrop-blur-sm"
       role="presentation"
       onClick={onCancel}
     >
@@ -43,24 +43,24 @@ export function ConfirmDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby="confirm-title"
-        className="w-full max-w-md rounded-2xl border border-cyan-400/40 bg-slate-900 p-6 shadow-2xl shadow-cyan-950/40"
+        className="glass-panel w-full max-w-md rounded-xl p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
         onClick={(event) => event.stopPropagation()}
       >
-        <h3 id="confirm-title" className="text-lg font-semibold text-white">
+        <h3 id="confirm-title" className="font-display text-lg font-semibold text-on-surface">
           {title}
         </h3>
-        <p className="mt-3 text-sm leading-6 text-slate-300">{message}</p>
+        <p className="mt-3 text-sm leading-6 text-on-surface-variant">{message}</p>
         <div className="mt-6 flex justify-end gap-3">
           <button
             type="button"
-            className="rounded-xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-200 hover:border-cyan-400 hover:text-white"
+            className="rounded-lg border border-outline-variant px-4 py-2 text-sm font-medium text-on-surface hover:border-primary-container hover:text-primary"
             onClick={onCancel}
           >
             Keep
           </button>
           <button
             type="button"
-            className="rounded-xl bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-500"
+            className="rounded-lg bg-error-container px-4 py-2 text-sm font-medium text-on-error-container hover:opacity-90"
             onClick={onConfirm}
           >
             {confirmLabel}

@@ -133,7 +133,7 @@ function App() {
 
   if (isSupabaseConfigured && !authReady) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-400">
+      <main className="canvas-glow flex min-h-screen items-center justify-center font-body text-on-surface-variant">
         Loading auth...
       </main>
     );
@@ -144,11 +144,13 @@ function App() {
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-slate-950 text-slate-100">
-      <header className="flex shrink-0 items-center justify-between border-b border-slate-800 px-6 py-4">
+    <div className="flex h-screen flex-col overflow-hidden bg-background font-body text-on-background">
+      <header className="flex h-16 shrink-0 items-center justify-between border-b border-outline-variant bg-background/80 px-gutter backdrop-blur-xl">
         <div>
-          <h1 className="text-xl font-semibold">RAG Document Assistant</h1>
-          <p className="text-sm text-slate-400">
+          <h1 className="font-display text-2xl font-bold leading-tight tracking-tight text-primary-fixed-dim">
+            RAG Document Assistant
+          </h1>
+          <p className="font-label text-xs uppercase tracking-wider text-on-surface-variant">
             API {health === "ok" ? "reachable" : health === "checking" ? "checking..." : "offline"}
             {session?.user.email ? ` · ${session.user.email}` : ""}
           </p>
@@ -156,7 +158,7 @@ function App() {
         {supabase ? (
           <button
             type="button"
-            className="text-sm text-cyan-400"
+            className="text-sm font-medium text-on-surface-variant transition-colors hover:text-primary"
             onClick={() => {
               void supabase?.auth.signOut();
             }}
@@ -165,12 +167,12 @@ function App() {
           </button>
         ) : null}
       </header>
-      <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[280px_1fr_280px]">
-        <aside className="overflow-y-auto border-r border-slate-800 p-4">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
-            Documents
+      <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[320px_1fr_320px]">
+        <aside className="overflow-y-auto border-r border-outline-variant bg-surface-container-low/60 p-4 backdrop-blur-lg">
+          <h2 className="mb-1 font-display text-2xl font-semibold tracking-tight text-primary">
+            The Vault
           </h2>
-          <p className="mb-3 text-xs leading-5 text-slate-400">
+          <p className="mb-4 font-label text-xs uppercase tracking-wider text-on-surface-variant">
             Click a PDF to select it before you chat.
           </p>
           <Uploader onUpload={handleUpload} />
@@ -194,7 +196,7 @@ function App() {
             />
           </div>
         </aside>
-        <main className="min-h-0 overflow-hidden p-4">
+        <main className="canvas-glow min-h-0 overflow-hidden p-gutter">
           <ChatWindow
             messages={messages}
             loading={loading}
@@ -206,8 +208,8 @@ function App() {
             onSend={handleSend}
           />
         </main>
-        <aside className="overflow-y-auto border-l border-slate-800 p-4">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
+        <aside className="overflow-y-auto border-l border-outline-variant bg-surface-container-low/60 p-4 backdrop-blur-lg">
+          <h2 className="mb-3 font-label text-xs font-medium uppercase tracking-wider text-on-surface-variant">
             Conversations
           </h2>
           <ConversationList

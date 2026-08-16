@@ -19,7 +19,7 @@ export function DocumentList({
   const [pending, setPending] = useState<DocumentSummary | null>(null);
 
   if (documents.length === 0) {
-    return <p className="text-sm text-slate-400">No documents yet.</p>;
+    return <p className="text-sm text-on-surface-variant">No documents yet.</p>;
   }
   return (
     <>
@@ -29,17 +29,20 @@ export function DocumentList({
           return (
             <li
               key={doc.id}
-              className={`rounded-xl border px-3 py-2 ${
-                selected ? "border-cyan-500 bg-slate-800" : "border-slate-800 bg-slate-950"
+              className={`glass-panel relative overflow-hidden rounded-xl py-2 pr-3 ${
+                selected ? "bg-surface-container-highest pl-4" : "pl-3"
               }`}
             >
+              {selected ? (
+                <div className="absolute bottom-0 left-0 top-0 w-1 bg-primary-container" />
+              ) : null}
               <button
                 type="button"
                 className="w-full text-left"
                 onClick={() => onSelect(selected ? null : doc.id)}
               >
-                <p className="truncate text-sm font-medium text-slate-100">{doc.filename}</p>
-                <p className="text-xs text-slate-400">
+                <p className="truncate text-sm font-medium text-on-surface">{doc.filename}</p>
+                <p className="text-xs text-on-surface-variant">
                   {selected ? "Selected · ready to chat" : "Click to select"}
                   {" · "}
                   {doc.page_count} pages
@@ -47,7 +50,7 @@ export function DocumentList({
               </button>
               <button
                 type="button"
-                className="mt-2 text-xs text-rose-400 hover:text-rose-300"
+                className="mt-2 text-xs text-error hover:text-on-error-container"
                 onClick={() => setPending(doc)}
               >
                 Delete

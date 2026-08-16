@@ -27,15 +27,15 @@ export function Uploader({ disabled, onUpload }: UploaderProps) {
   return (
     <div>
       <label
-        className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-slate-700 bg-slate-950/70 px-4 py-8 text-center text-slate-300"
+        className="btn-primary flex cursor-pointer flex-col items-center justify-center rounded-lg px-4 py-3 text-center font-semibold hover:opacity-90"
         onDragOver={(event) => event.preventDefault()}
         onDrop={(event) => {
           event.preventDefault();
           void handleFile(event.dataTransfer.files[0]);
         }}
       >
-        <span className="font-medium text-slate-100">Drop a PDF here</span>
-        <span className="mt-1 text-sm text-slate-400">or click to browse</span>
+        <span>Drop a PDF here</span>
+        <span className="mt-1 text-sm font-medium opacity-80">or click to browse</span>
         <input
           type="file"
           accept="application/pdf"
@@ -48,11 +48,11 @@ export function Uploader({ disabled, onUpload }: UploaderProps) {
         />
       </label>
       {busy && (
-        <p className="mt-2 text-sm text-cyan-400">
+        <p className="mt-2 font-label text-sm text-primary-fixed-dim">
           Indexing the PDF (this is usually a few seconds)...
         </p>
       )}
-      {error && <p className="mt-2 text-sm text-rose-400">{error}</p>}
+      {error && <p className="mt-2 text-sm text-error">{error}</p>}
     </div>
   );
 }

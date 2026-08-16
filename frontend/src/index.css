@@ -1,8 +1,133 @@
 @import "tailwindcss";
 
+@theme {
+  --color-surface: #0b1326;
+  --color-surface-dim: #0b1326;
+  --color-surface-bright: #31394d;
+  --color-surface-container-lowest: #060e20;
+  --color-surface-container-low: #131b2e;
+  --color-surface-container: #171f33;
+  --color-surface-container-high: #222a3d;
+  --color-surface-container-highest: #2d3449;
+  --color-on-surface: #dae2fd;
+  --color-on-surface-variant: #bac9cc;
+  --color-inverse-surface: #dae2fd;
+  --color-inverse-on-surface: #283044;
+  --color-outline: #849396;
+  --color-outline-variant: #3b494c;
+  --color-surface-tint: #00daf3;
+  --color-primary: #c3f5ff;
+  --color-on-primary: #00363d;
+  --color-primary-container: #00e5ff;
+  --color-on-primary-container: #00626e;
+  --color-inverse-primary: #006875;
+  --color-secondary: #adc7ff;
+  --color-on-secondary: #002e68;
+  --color-secondary-container: #4a8eff;
+  --color-on-secondary-container: #00285b;
+  --color-tertiary: #f2e9ff;
+  --color-on-tertiary: #3c0090;
+  --color-tertiary-container: #d9c8ff;
+  --color-on-tertiary-container: #6c00f7;
+  --color-error: #ffb4ab;
+  --color-on-error: #690005;
+  --color-error-container: #93000a;
+  --color-on-error-container: #ffdad6;
+  --color-primary-fixed: #9cf0ff;
+  --color-primary-fixed-dim: #00daf3;
+  --color-on-primary-fixed: #001f24;
+  --color-on-primary-fixed-variant: #004f58;
+  --color-secondary-fixed: #d8e2ff;
+  --color-secondary-fixed-dim: #adc7ff;
+  --color-on-secondary-fixed: #001a41;
+  --color-on-secondary-fixed-variant: #004493;
+  --color-tertiary-fixed: #e9ddff;
+  --color-tertiary-fixed-dim: #d1bcff;
+  --color-on-tertiary-fixed: #23005b;
+  --color-on-tertiary-fixed-variant: #5700c9;
+  --color-background: #0b1326;
+  --color-on-background: #dae2fd;
+  --color-surface-variant: #2d3449;
+
+  --font-display: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-label: "JetBrains Mono", ui-monospace, monospace;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+
+  --spacing-gutter: 24px;
+  --spacing-sidebar: 320px;
+}
+
 html,
 body,
 #root {
   height: 100%;
   overflow: hidden;
+}
+
+body {
+  background-color: #020617;
+  color: var(--color-on-background);
+  font-family: var(--font-body);
+}
+
+.glass-panel {
+  background: rgba(19, 27, 46, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-outline-variant);
+}
+
+.glass-panel-hover:hover {
+  border-top-color: var(--color-primary-container);
+  border-left-color: var(--color-primary-container);
+  box-shadow: 0 4px 20px -2px rgba(0, 229, 255, 0.1);
+}
+
+.canvas-glow {
+  background:
+    radial-gradient(ellipse at top, rgba(34, 42, 61, 0.35), transparent 55%),
+    #020617;
+}
+
+.btn-primary {
+  background-image: linear-gradient(to right, #00e5ff, #4a8eff);
+  color: #00626e;
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+}
+
+.scroll-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.scroll-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #060e20;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2d3449;
+  border-radius: 9999px;
+}
+
+.prose-chat :where(p, ul, ol, li, code, pre, h1, h2, h3, strong) {
+  color: var(--color-on-surface);
+}
+
+.prose-chat :where(a) {
+  color: var(--color-primary-fixed-dim);
 }
