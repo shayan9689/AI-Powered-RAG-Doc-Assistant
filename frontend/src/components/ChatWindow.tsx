@@ -50,7 +50,7 @@ function SourcePages({
     <div className="mt-3">
       <button
         type="button"
-        className="font-label text-xs uppercase tracking-wider text-primary-fixed-dim hover:text-primary"
+        className="cursor-pointer font-label text-xs uppercase tracking-wider text-primary-fixed-dim transition-transform duration-200 hover:-translate-y-0.5 hover:text-primary"
         onClick={onToggle}
         aria-expanded={open}
         aria-controls={`refs-${messageId}`}
@@ -65,7 +65,7 @@ function SourcePages({
             <button
               type="button"
               key={`${source.document_id}-${source.page_number}`}
-              className="rounded-lg border border-outline-variant bg-surface-container-lowest px-2.5 py-1.5 text-left font-label hover:border-primary-container"
+              className="cursor-pointer rounded-lg border border-outline-variant bg-surface-container-lowest px-2.5 py-1.5 text-left font-label transition-transform duration-200 hover:-translate-y-0.5 hover:border-primary-container"
               onClick={() => onOpenPage(source)}
             >
               <span className="text-xs font-medium text-primary-fixed-dim">
