@@ -32,6 +32,8 @@ frontend/.oxlintcache
 data/
 *.chroma
 evaluation/results/*.json
+*.pdf
+!frontend/public/*.pdf
 
 # Hugging Face / model caches if downloaded in-repo
 .cache/

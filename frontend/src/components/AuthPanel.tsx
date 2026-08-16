@@ -6,6 +6,26 @@ type AuthPanelProps = {
   onSignedIn: () => void;
 };
 
+function formatAuthError(message: string): string {
+  const lower = message.toLowerCase();
+  if (
+    lower.includes("password should contain") ||
+    lower.includes("at least one character")
+  ) {
+    return "Use a stronger password: include uppercase and lowercase letters, a number, and a symbol.";
+  }
+  if (lower.includes("invalid login credentials")) {
+    return "Email or password is incorrect.";
+  }
+  if (lower.includes("user already registered")) {
+    return "An account with this email already exists. Sign in instead.";
+  }
+  if (lower.includes("email not confirmed")) {
+    return "Confirm your email, or turn off Confirm email in Supabase Auth.";
+  }
+  return message;
+}
+
 export function AuthPanel({ onSignedIn }: AuthPanelProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,7 +46,7 @@ export function AuthPanel({ onSignedIn }: AuthPanelProps) {
     const { data, error: authError } = await action;
     setBusy(false);
     if (authError) {
-      setError(authError.message);
+      setError(formatAuthError(authError.message));
       return;
     }
     if (mode === "signup" && !data.session) {
@@ -48,9 +68,11 @@ export function AuthPanel({ onSignedIn }: AuthPanelProps) {
           void submit();
         }}
       >
-        <h1 className="text-2xl font-semibold">Sign in</h1>
+        <h1 className="text-2xl font-semibold">
+          {mode === "signin" ? "Sign in" : "Create account"}
+        </h1>
         <p className="mt-2 text-sm text-slate-400">
-          Use the same email you will confirm in Supabase Auth.
+          Sign in to upload documents and ask questions.
         </p>
         <label className="mt-6 block text-sm text-slate-300">
           Email
@@ -67,12 +89,17 @@ export function AuthPanel({ onSignedIn }: AuthPanelProps) {
           <input
             type="password"
             required
-            minLength={6}
+            minLength={8}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100"
           />
         </label>
+        {mode === "signup" && (
+          <p className="mt-2 text-xs leading-5 text-slate-400">
+            Include uppercase, lowercase, a number, and a symbol.
+          </p>
+        )}
         {error && <p className="mt-3 text-sm text-rose-400">{error}</p>}
         <button
           type="submit"
