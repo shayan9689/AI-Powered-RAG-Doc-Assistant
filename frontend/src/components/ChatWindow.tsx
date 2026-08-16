@@ -13,6 +13,12 @@ type ChatWindowProps = {
   onSend: (text: string) => Promise<void>;
 };
 
+const SUGGESTIONS = [
+  "Summarize this document",
+  "What are the key points?",
+  "Who or what is this about?",
+];
+
 function uniquePages(sources: Citation[]): Citation[] {
   const seen = new Set<string>();
   const unique: Citation[] = [];
@@ -72,12 +78,32 @@ export function ChatWindow({
           </div>
         )}
         {canChat && messages.length === 0 && (
-          <div className="glass-panel rounded-xl px-4 py-3">
-            <p className="font-label text-xs uppercase tracking-wider text-primary-fixed-dim">
-              Chatting with
-            </p>
-            <p className="mt-1 truncate text-sm font-medium text-on-surface">{selectedFilename}</p>
-            <p className="mt-2 text-sm text-on-surface-variant">Ask a question about this PDF.</p>
+          <div className="flex h-full flex-col justify-center">
+            <article className="mr-8 border-l border-primary-container/50 py-1 pl-4">
+              <p className="font-label text-[10px] uppercase tracking-widest text-outline">
+                assistant
+              </p>
+              <p className="mt-2 text-[15px] leading-[22px] text-on-surface">
+                Welcome. I can answer questions about{" "}
+                <span className="text-primary-fixed-dim">{selectedFilename}</span>. Ask
+                for a summary, the key points, or any detail in this PDF.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {SUGGESTIONS.map((prompt) => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    disabled={loading}
+                    className="rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-1.5 text-left text-xs text-on-surface-variant hover:border-primary-container hover:text-primary-fixed-dim disabled:opacity-50"
+                    onClick={() => {
+                      void onSend(prompt);
+                    }}
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            </article>
           </div>
         )}
         {messages.length > 0 && (

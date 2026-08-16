@@ -180,7 +180,11 @@ function App() {
             <DocumentList
               documents={documents}
               selectedId={selectedDoc}
-              onSelect={setSelectedDoc}
+              onSelect={(id) => {
+                setSelectedDoc(id);
+                setConversationId(null);
+                setMessages([]);
+              }}
               onDelete={(id) => {
                 setDocuments((current) => current.filter((doc) => doc.id !== id));
                 if (selectedDoc === id) {

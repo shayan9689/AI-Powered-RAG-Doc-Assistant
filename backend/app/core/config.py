@@ -27,8 +27,8 @@ class Settings(BaseSettings):
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
     chroma_persist_dir: str = "./data/chroma"
     chroma_collection: str = "document_chunks"
-    retrieval_top_k: int = 5
-    min_retrieval_score: float = 0.25
+    retrieval_top_k: int = 8
+    min_retrieval_score: float = 0.12
     hybrid_retrieval: bool = True
     rerank_results: bool = True
     rewrite_followups: bool = True

@@ -1,6 +1,11 @@
 from pathlib import Path
 
-from app.rag.generation.prompt import REFUSAL_MESSAGE, SYSTEM_PROMPT, build_user_prompt
+from app.rag.generation.prompt import (
+    REFUSAL_MESSAGE,
+    SYSTEM_PROMPT,
+    build_user_prompt,
+    welcome_message,
+)
 from app.rag.retrieval.chroma_store import ChromaVectorStore
 from app.schemas.retrieval import RetrievedChunk
 from app.services.citations import (
@@ -30,7 +35,7 @@ def test_prompt_constrains_model_to_evidence() -> None:
     assert "pets.pdf page 1" in user_prompt
     assert "Cats sit on mats." in user_prompt
     assert "Where do cats sit?" in user_prompt
-    assert "direct answer" in user_prompt.lower()
+    assert "write the answer" in user_prompt.lower()
     assert "paraphrase" in SYSTEM_PROMPT.lower()
 
 
@@ -101,6 +106,51 @@ def test_answer_question_refuses_unsupported_query(tmp_path: Path) -> None:
     assert result.refused is True
     assert result.answer == REFUSAL_MESSAGE
     assert llm.called is False
+
+
+def test_greeting_returns_welcome(tmp_path: Path) -> None:
+    embedder = FakeEmbedder()
+    store = ChromaVectorStore(str(tmp_path / "chroma"), "test_chunks")
+    llm = FakeLLM()
+    ingest_pdf(
+        make_pdf_bytes(["Cats sit on mats."]),
+        "pets.pdf",
+        embedder=embedder,
+        vector_store=store,
+    )
+    result = answer_question(
+        "hello",
+        embedder=embedder,
+        vector_store=store,
+        llm=llm,
+    )
+    assert result.refused is False
+    assert result.answer == welcome_message("this document")
+    assert llm.called is False
+
+
+def test_selected_document_uses_retrieved_chunks_for_loose_query(
+    tmp_path: Path,
+) -> None:
+    embedder = FakeEmbedder()
+    store = ChromaVectorStore(str(tmp_path / "chroma"), "test_chunks")
+    llm = FakeLLM()
+    ingested = ingest_pdf(
+        make_pdf_bytes(["Cats sit on mats."]),
+        "pets.pdf",
+        embedder=embedder,
+        vector_store=store,
+    )
+    result = answer_question(
+        "what is this about",
+        embedder=embedder,
+        vector_store=store,
+        llm=llm,
+        document_id=ingested.document_id,
+    )
+    assert result.refused is False
+    assert llm.called is True
+    assert result.sources
 
 
 def test_strip_inline_citations_removes_filename_page() -> None:

@@ -3,7 +3,13 @@ from app.core.constants import DEFAULT_USER_ID
 from app.persistence.store import AppStore
 from app.rag.embeddings.base import EmbeddingClient
 from app.rag.generation.base import LLMClient
-from app.rag.generation.prompt import REFUSAL_MESSAGE, SYSTEM_PROMPT, build_user_prompt
+from app.rag.generation.prompt import (
+    REFUSAL_MESSAGE,
+    SYSTEM_PROMPT,
+    build_user_prompt,
+    is_smalltalk,
+    welcome_message,
+)
 from app.rag.retrieval.base import VectorStore
 from app.rag.retrieval.rewrite import rewrite_followup
 from app.rag.retrieval.search import retrieve_chunks
@@ -30,46 +36,65 @@ def answer_question(
             {"role": item["role"], "content": item["content"]}
             for item in store.list_messages(conversation_id)
         ]
-    search_query = query.strip()
-    if settings.rewrite_followups and history:
-        search_query = rewrite_followup(query, history, llm)
+    filename = "this document"
+    if store and document_id:
+        record = store.get_document(document_id)
+        if record and record.get("filename"):
+            filename = str(record["filename"])
 
-    retrieved = retrieve_chunks(
-        search_query,
-        embedder=embedder,
-        vector_store=vector_store,
-        top_k=top_k,
-        document_id=document_id,
-        document_ids=document_ids,
-        user_id=user_id,
-    )
-    evidence = [
-        chunk for chunk in retrieved if chunk.score >= settings.min_retrieval_score
-    ]
-    citations = to_citations(evidence if evidence else retrieved)
-    if not evidence:
+    if is_smalltalk(query):
         response = ChatResponse(
-            answer=REFUSAL_MESSAGE,
-            refused=True,
+            answer=welcome_message(filename),
+            refused=False,
             model=llm.model_name,
-            sources=citations,
+            sources=[],
             conversation_id=conversation_id,
         )
     else:
-        answer = compose_chat_answer(
-            llm.generate(
-                system_prompt=SYSTEM_PROMPT,
-                user_prompt=build_user_prompt(query, evidence),
-            ),
-            evidence[0].text,
+        search_query = query.strip()
+        if settings.rewrite_followups and history:
+            search_query = rewrite_followup(query, history, llm)
+
+        retrieved = retrieve_chunks(
+            search_query,
+            embedder=embedder,
+            vector_store=vector_store,
+            top_k=top_k,
+            document_id=document_id,
+            document_ids=document_ids,
+            user_id=user_id,
         )
-        response = ChatResponse(
-            answer=answer,
-            refused=False,
-            model=llm.model_name,
-            sources=to_citations(evidence),
-            conversation_id=conversation_id,
-        )
+        evidence = [
+            chunk
+            for chunk in retrieved
+            if chunk.score >= settings.min_retrieval_score
+        ]
+        if not evidence and retrieved and (document_id or document_ids):
+            evidence = retrieved
+        citations = to_citations(evidence if evidence else retrieved)
+        if not evidence:
+            response = ChatResponse(
+                answer=REFUSAL_MESSAGE,
+                refused=True,
+                model=llm.model_name,
+                sources=citations,
+                conversation_id=conversation_id,
+            )
+        else:
+            answer = compose_chat_answer(
+                llm.generate(
+                    system_prompt=SYSTEM_PROMPT,
+                    user_prompt=build_user_prompt(query, evidence),
+                ),
+                evidence[0].text,
+            )
+            response = ChatResponse(
+                answer=answer,
+                refused=False,
+                model=llm.model_name,
+                sources=to_citations(evidence),
+                conversation_id=conversation_id,
+            )
 
     if store:
         active_id = conversation_id

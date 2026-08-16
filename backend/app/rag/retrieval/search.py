@@ -22,6 +22,8 @@ def retrieve_chunks(
     if not cleaned:
         raise RetrievalError("Query must not be empty.")
     limit = top_k or settings.retrieval_top_k
+    if document_id or document_ids:
+        limit = max(limit, 8)
     embedding = embedder.embed_query(cleaned)
     semantic = vector_store.similarity_search(
         embedding,
