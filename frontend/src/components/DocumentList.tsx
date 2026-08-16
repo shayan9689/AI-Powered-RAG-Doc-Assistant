@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import type { DocumentSummary } from "../types";
 import { ConfirmDialog } from "./ConfirmDialog";
+import { TrashIcon } from "./TrashIcon";
 
 type DocumentListProps = {
   documents: DocumentSummary[];
@@ -29,32 +30,38 @@ export function DocumentList({
           return (
             <li
               key={doc.id}
-              className={`glass-panel relative overflow-hidden rounded-xl py-2 pr-3 ${
+              className={`glass-panel relative overflow-hidden rounded-xl py-2 pr-2 ${
                 selected ? "bg-surface-container-highest pl-4" : "pl-3"
               }`}
             >
               {selected ? (
                 <div className="absolute bottom-0 left-0 top-0 w-1 bg-primary-container" />
               ) : null}
-              <button
-                type="button"
-                className="w-full text-left"
-                onClick={() => onSelect(selected ? null : doc.id)}
-              >
-                <p className="truncate text-sm font-medium text-on-surface">{doc.filename}</p>
-                <p className="text-xs text-on-surface-variant">
-                  {selected ? "Selected · ready to chat" : "Click to select"}
-                  {" · "}
-                  {doc.page_count} pages
-                </p>
-              </button>
-              <button
-                type="button"
-                className="mt-2 text-xs text-error hover:text-on-error-container"
-                onClick={() => setPending(doc)}
-              >
-                Delete
-              </button>
+              <div className="flex items-start gap-2">
+                <button
+                  type="button"
+                  className="min-w-0 flex-1 cursor-pointer text-left"
+                  onClick={() => onSelect(selected ? null : doc.id)}
+                >
+                  <p className="truncate text-sm font-medium text-on-surface">
+                    {doc.filename}
+                  </p>
+                  <p className="text-xs text-on-surface-variant">
+                    {selected ? "Selected · ready to chat" : "Click to select"}
+                    {" · "}
+                    {doc.page_count} pages
+                  </p>
+                </button>
+                <button
+                  type="button"
+                  className="mt-0.5 shrink-0 cursor-pointer rounded-md p-1.5 text-error transition-transform duration-200 hover:-translate-y-0.5 hover:bg-error/10 hover:text-on-error-container"
+                  aria-label={`Delete ${doc.filename}`}
+                  title="Delete document"
+                  onClick={() => setPending(doc)}
+                >
+                  <TrashIcon />
+                </button>
+              </div>
             </li>
           );
         })}

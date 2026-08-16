@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import type { ConversationSummary } from "../types";
 import { ConfirmDialog } from "./ConfirmDialog";
+import { TrashIcon } from "./TrashIcon";
 
 type ConversationListProps = {
   conversations: ConversationSummary[];
@@ -24,7 +25,7 @@ export function ConversationList({
     <div>
       <button
         type="button"
-        className="btn-primary mb-3 w-full rounded-lg px-3 py-2 text-sm font-semibold hover:opacity-90"
+        className="btn-primary mb-3 w-full cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold hover:opacity-90"
         onClick={onNew}
       >
         New chat
@@ -32,24 +33,30 @@ export function ConversationList({
       <ul className="space-y-2">
         {conversations.map((item) => (
           <li key={item.id}>
-            <button
-              type="button"
-              className={`glass-panel w-full rounded-xl px-3 py-2 text-left text-sm ${
+            <div
+              className={`glass-panel flex items-start gap-2 rounded-xl px-3 py-2 ${
                 selectedId === item.id
                   ? "bg-surface-container-highest text-on-surface"
                   : "text-on-surface-variant"
               }`}
-              onClick={() => onSelect(item.id)}
             >
-              {item.title}
-            </button>
-            <button
-              type="button"
-              className="mt-1 text-xs text-error"
-              onClick={() => setPending(item)}
-            >
-              Delete
-            </button>
+              <button
+                type="button"
+                className="min-w-0 flex-1 cursor-pointer truncate text-left text-sm"
+                onClick={() => onSelect(item.id)}
+              >
+                {item.title}
+              </button>
+              <button
+                type="button"
+                className="mt-0.5 shrink-0 cursor-pointer rounded-md p-1 text-error transition-transform duration-200 hover:-translate-y-0.5 hover:bg-error/10 hover:text-on-error-container"
+                aria-label={`Delete ${item.title}`}
+                title="Delete chat"
+                onClick={() => setPending(item)}
+              >
+                <TrashIcon className="h-3.5 w-3.5" />
+              </button>
+            </div>
           </li>
         ))}
       </ul>

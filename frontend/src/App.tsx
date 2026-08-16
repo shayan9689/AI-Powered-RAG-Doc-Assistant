@@ -158,7 +158,7 @@ function App() {
         {supabase ? (
           <button
             type="button"
-            className="text-sm font-medium text-on-surface-variant transition-colors hover:text-primary"
+            className="cursor-pointer text-sm font-medium text-error transition-colors hover:text-on-error-container"
             onClick={() => {
               void supabase?.auth.signOut();
             }}
