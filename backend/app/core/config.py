@@ -68,14 +68,15 @@ class Settings(BaseSettings):
         path = Path(self.chroma_persist_dir)
         if path.is_absolute():
             return str(path)
-        repo_root = Path(__file__).resolve().parents[3]
-        return str((repo_root / path).resolve())
+        return str((self.data_path / "chroma").resolve())
 
     @property
     def data_path(self) -> Path:
         path = Path(self.data_dir)
         if path.is_absolute():
             return path
+        if self.environment.lower() == "production" and Path("/data").exists():
+            return Path("/data")
         repo_root = Path(__file__).resolve().parents[3]
         return (repo_root / path).resolve()
 

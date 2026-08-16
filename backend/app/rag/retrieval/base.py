@@ -32,3 +32,11 @@ class VectorStore(Protocol):
     ) -> list[RetrievedChunk]: ...
 
     def delete_document(self, document_id: str, user_id: str | None = None) -> None: ...
+
+    def fetch_document_chunks(
+        self,
+        document_id: str,
+        *,
+        user_id: str | None = None,
+        limit: int | None = None,
+    ) -> list[RetrievedChunk]: ...

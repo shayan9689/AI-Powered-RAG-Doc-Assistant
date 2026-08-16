@@ -73,3 +73,38 @@ def ingest_pdf(
             }
         )
     return result
+
+
+def reindex_saved_pdf(
+    document_id: str,
+    filename: str,
+    *,
+    embedder: EmbeddingClient,
+    vector_store: VectorStore,
+    user_id: str = DEFAULT_USER_ID,
+) -> int:
+    from app.services.pdf_storage import pdf_path
+
+    path = pdf_path(document_id, user_id)
+    if not path.exists():
+        return 0
+    file_bytes = path.read_bytes()
+    pages = extract_pages(file_bytes)
+    cleaned_pages = [
+        PageText(page_number=page.page_number, text=normalize_text(page.text))
+        for page in pages
+    ]
+    chunks = chunk_pages(
+        cleaned_pages,
+        document_id=document_id,
+        filename=filename,
+        chunk_size=settings.chunk_size,
+        overlap=settings.chunk_overlap,
+    )
+    for chunk in chunks:
+        chunk.metadata["embedding_model"] = embedder.model_name
+        chunk.metadata["user_id"] = user_id
+    if chunks:
+        embeddings = embedder.embed_texts([chunk.text for chunk in chunks])
+        vector_store.upsert_chunks(chunks, embeddings)
+    return len(chunks)

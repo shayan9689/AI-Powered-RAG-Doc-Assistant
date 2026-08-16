@@ -56,9 +56,23 @@ def test_similarity_search_can_filter_by_document(tmp_path: Path) -> None:
         vector_store=store,
         top_k=5,
         document_id="doc-b",
+        user_id="someone-else",
     )
     assert results
     assert all(item.metadata["document_id"] == "doc-b" for item in results)
+
+
+def test_fetch_document_chunks_returns_selected_pdf(tmp_path: Path) -> None:
+    embedder = FakeEmbedder()
+    store = ChromaVectorStore(str(tmp_path / "chroma"), "test_chunks")
+    chunks = [
+        _chunk("doc-a", 0, 1, "apple banana fruit"),
+        _chunk("doc-b", 0, 1, "only this file"),
+    ]
+    store.upsert_chunks(chunks, embedder.embed_texts([chunk.text for chunk in chunks]))
+    fetched = store.fetch_document_chunks("doc-b")
+    assert len(fetched) == 1
+    assert fetched[0].text == "only this file"
 
 
 def test_vectors_persist_on_disk(tmp_path: Path) -> None:

@@ -15,6 +15,11 @@ from app.rag.retrieval.rewrite import rewrite_followup
 from app.rag.retrieval.search import retrieve_chunks
 from app.schemas.chat import ChatResponse
 from app.services.citations import compose_chat_answer, to_citations
+from app.services.ingestion import reindex_saved_pdf
+
+MISSING_INDEX_MESSAGE = (
+    "This PDF is not indexed on the server. Re-upload it, then ask again."
+)
 
 
 def answer_question(
@@ -64,6 +69,23 @@ def answer_question(
             document_ids=document_ids,
             user_id=user_id,
         )
+        if not retrieved and document_id:
+            reindex_saved_pdf(
+                document_id,
+                filename,
+                embedder=embedder,
+                vector_store=vector_store,
+                user_id=user_id,
+            )
+            retrieved = retrieve_chunks(
+                search_query,
+                embedder=embedder,
+                vector_store=vector_store,
+                top_k=top_k,
+                document_id=document_id,
+                document_ids=document_ids,
+                user_id=user_id,
+            )
         evidence = [
             chunk
             for chunk in retrieved
@@ -74,7 +96,11 @@ def answer_question(
         citations = to_citations(evidence if evidence else retrieved)
         if not evidence:
             response = ChatResponse(
-                answer=REFUSAL_MESSAGE,
+                answer=(
+                    MISSING_INDEX_MESSAGE
+                    if document_id
+                    else REFUSAL_MESSAGE
+                ),
                 refused=True,
                 model=llm.model_name,
                 sources=citations,

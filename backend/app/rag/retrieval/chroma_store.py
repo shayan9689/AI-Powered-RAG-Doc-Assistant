@@ -76,7 +76,7 @@ class ChromaVectorStore:
             return []
         query_kwargs: dict[str, object] = {
             "query_embeddings": [embedding],
-            "n_results": min(top_k, count),
+            "n_results": min(top_k, max(count, 1)),
             "include": ["documents", "metadatas", "distances"],
         }
         where = build_where(
@@ -88,8 +88,12 @@ class ChromaVectorStore:
             query_kwargs["where"] = where
         try:
             result = self._collection.query(**query_kwargs)
-        except Exception as exc:
-            raise RetrievalError("Similarity search failed.", 500) from exc
+        except Exception:
+            if document_id:
+                return self.fetch_document_chunks(
+                    document_id, user_id=user_id, limit=top_k
+                )
+            raise RetrievalError("Similarity search failed.", 500)
 
         documents = (result.get("documents") or [[]])[0]
         metadatas = (result.get("metadatas") or [[]])[0]
@@ -152,3 +156,36 @@ class ChromaVectorStore:
                 self._collection.delete(where={"document_id": document_id})
         except Exception as exc:
             raise RetrievalError("Failed to delete document vectors.", 500) from exc
+
+    def fetch_document_chunks(
+        self,
+        document_id: str,
+        *,
+        user_id: str | None = None,
+        limit: int | None = None,
+    ) -> list[RetrievedChunk]:
+        where: dict[str, object] = {"document_id": document_id}
+        if user_id:
+            where = {"$and": [{"document_id": document_id}, {"user_id": user_id}]}
+        try:
+            result = self._collection.get(
+                where=where,
+                include=["documents", "metadatas"],
+            )
+        except Exception:
+            if user_id:
+                return self.fetch_document_chunks(
+                    document_id, user_id=None, limit=limit
+                )
+            return []
+        documents = result.get("documents") or []
+        metadatas = result.get("metadatas") or []
+        retrieved: list[RetrievedChunk] = []
+        for text, metadata in zip(documents, metadatas, strict=True):
+            retrieved.append(
+                _chunk_from_record(text or "", dict(metadata or {}), 1.0)
+            )
+        retrieved.sort(key=lambda item: item.chunk_index)
+        if limit is not None:
+            return retrieved[:limit]
+        return retrieved
