@@ -53,7 +53,13 @@ export function AuthPanel({ onSignedIn }: AuthPanelProps) {
     const action =
       mode === "signin"
         ? supabase.auth.signInWithPassword({ email, password })
-        : supabase.auth.signUp({ email, password });
+        : supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              emailRedirectTo: `${window.location.origin}/`,
+            },
+          });
     const { data, error: authError } = await action;
     setBusy(false);
     if (authError) {
