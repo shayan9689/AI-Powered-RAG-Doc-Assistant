@@ -1,0 +1,49 @@
+# Secrets — never commit real keys
+.env
+.env.*
+!.env.example
+!**/.env.example
+backend/.env
+frontend/.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+*.egg
+dist/
+build/
+
+# Node / Vite
+node_modules/
+frontend/dist/
+frontend/.oxlintcache
+*.tsbuildinfo
+
+# Local app data (Chroma, PDFs, JSON store)
+data/
+*.chroma
+evaluation/results/*.json
+
+# Hugging Face / model caches if downloaded in-repo
+.cache/
+*.safetensors
+
+# Deploy / OS / IDE
+.vercel/
+.railway/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+.cursor/
