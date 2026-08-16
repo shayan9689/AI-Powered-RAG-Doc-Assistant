@@ -5,12 +5,19 @@ import type {
   DocumentSummary,
 } from "../types";
 
-const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL ||
-  (import.meta.env.PROD
-    ? "https://ai-powered-rag-doc-assistant-production.up.railway.app"
-    : "http://localhost:8000")
-).replace(/\/$/, "");
+function resolveApiBase(): string {
+  const fromEnv = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/$/, "");
+  const railway = "https://ai-powered-rag-doc-assistant-production.up.railway.app";
+  if (import.meta.env.PROD) {
+    if (!fromEnv || fromEnv.includes("localhost")) {
+      return railway;
+    }
+    return fromEnv;
+  }
+  return fromEnv || "http://localhost:8000";
+}
+
+const API_BASE_URL = resolveApiBase();
 
 function authHeaders(json = false): HeadersInit {
   const headers: Record<string, string> = {};
