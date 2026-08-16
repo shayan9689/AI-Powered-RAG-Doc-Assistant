@@ -14,7 +14,12 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self._hits: dict[str, deque[float]] = defaultdict(deque)
 
     async def dispatch(self, request: Request, call_next) -> Response:
-        if request.url.path in {"/health", "/docs", "/openapi.json"}:
+        if request.method == "OPTIONS" or request.url.path in {
+            "/health",
+            "/docs",
+            "/openapi.json",
+            "/",
+        }:
             return await call_next(request)
         limit = settings.rate_limit_per_minute
         if limit <= 0:

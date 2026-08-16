@@ -42,18 +42,31 @@ async function parseError(response: Response): Promise<string> {
 
 async function request(input: string, init?: RequestInit): Promise<Response> {
   try {
-    return await fetch(input, init);
+    return await fetch(input, { cache: "no-store", ...init });
   } catch {
     throw new Error(`Cannot reach the API at ${API_BASE_URL}.`);
   }
 }
 
+async function sleep(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function getHealth(): Promise<{ status: string }> {
-  const response = await request(`${API_BASE_URL}/health`);
-  if (!response.ok) {
-    throw new Error("Health check failed");
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    try {
+      const response = await request(`${API_BASE_URL}/health`);
+      if (!response.ok) {
+        throw new Error("Health check failed");
+      }
+      return response.json() as Promise<{ status: string }>;
+    } catch (err) {
+      lastError = err;
+      await sleep(1200 * (attempt + 1));
+    }
   }
-  return response.json() as Promise<{ status: string }>;
+  throw lastError instanceof Error ? lastError : new Error("Health check failed");
 }
 
 export async function uploadDocument(file: File): Promise<DocumentSummary & { document_id?: string }> {
