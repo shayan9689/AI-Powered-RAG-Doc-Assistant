@@ -5,7 +5,12 @@ import type {
   DocumentSummary,
 } from "../types";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.PROD
+    ? "https://ai-powered-rag-doc-assistant-production.up.railway.app"
+    : "http://localhost:8000")
+).replace(/\/$/, "");
 
 function authHeaders(json = false): HeadersInit {
   const headers: Record<string, string> = {};
@@ -32,9 +37,7 @@ async function request(input: string, init?: RequestInit): Promise<Response> {
   try {
     return await fetch(input, init);
   } catch {
-    throw new Error(
-      "Cannot reach the API. Make sure the backend is running on http://localhost:8000.",
-    );
+    throw new Error(`Cannot reach the API at ${API_BASE_URL}.`);
   }
 }
 
