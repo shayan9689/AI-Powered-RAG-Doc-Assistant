@@ -33,6 +33,55 @@ function uniquePages(sources: Citation[]): Citation[] {
   return unique;
 }
 
+function SourcePages({
+  messageId,
+  sources,
+  open,
+  onToggle,
+  onOpenPage,
+}: {
+  messageId: string;
+  sources: Citation[];
+  open: boolean;
+  onToggle: () => void;
+  onOpenPage: (source: Citation) => void;
+}) {
+  return (
+    <div className="mt-3">
+      <button
+        type="button"
+        className="font-label text-xs uppercase tracking-wider text-primary-fixed-dim hover:text-primary"
+        onClick={onToggle}
+        aria-expanded={open}
+        aria-controls={`refs-${messageId}`}
+      >
+        {open
+          ? "Hide reference pages"
+          : `View reference pages · ${sources.length}`}
+      </button>
+      {open ? (
+        <div id={`refs-${messageId}`} className="mt-2 flex flex-wrap gap-2">
+          {sources.map((source) => (
+            <button
+              type="button"
+              key={`${source.document_id}-${source.page_number}`}
+              className="rounded-lg border border-outline-variant bg-surface-container-lowest px-2.5 py-1.5 text-left font-label hover:border-primary-container"
+              onClick={() => onOpenPage(source)}
+            >
+              <span className="text-xs font-medium text-primary-fixed-dim">
+                Page {source.page_number}
+              </span>
+              <span className="ml-2 text-xs text-on-surface-variant">
+                {source.filename}
+              </span>
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export function ChatWindow({
   messages,
   loading,
@@ -43,6 +92,7 @@ export function ChatWindow({
 }: ChatWindowProps) {
   const [draft, setDraft] = useState("");
   const [preview, setPreview] = useState<Citation | null>(null);
+  const [openRefs, setOpenRefs] = useState<Set<string>>(new Set());
   const canChat = Boolean(selectedFilename);
   const needsScroll = messages.length > 0 || loading;
 
@@ -125,23 +175,23 @@ export function ChatWindow({
                 </div>
                 {message.role === "assistant" &&
                   uniquePages(message.sources ?? []).length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {uniquePages(message.sources ?? []).map((source) => (
-                        <button
-                          type="button"
-                          key={`${source.document_id}-${source.page_number}`}
-                          className="rounded-lg border border-outline-variant bg-surface-container-lowest px-2.5 py-1.5 text-left font-label hover:border-primary-container"
-                          onClick={() => setPreview(source)}
-                        >
-                          <span className="text-xs font-medium text-primary-fixed-dim">
-                            Page {source.page_number}
-                          </span>
-                          <span className="ml-2 text-xs text-on-surface-variant">
-                            {source.filename}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
+                    <SourcePages
+                      messageId={message.id}
+                      sources={uniquePages(message.sources ?? [])}
+                      open={openRefs.has(message.id)}
+                      onToggle={() => {
+                        setOpenRefs((current) => {
+                          const next = new Set(current);
+                          if (next.has(message.id)) {
+                            next.delete(message.id);
+                          } else {
+                            next.add(message.id);
+                          }
+                          return next;
+                        });
+                      }}
+                      onOpenPage={setPreview}
+                    />
                   )}
               </article>
             ))}
